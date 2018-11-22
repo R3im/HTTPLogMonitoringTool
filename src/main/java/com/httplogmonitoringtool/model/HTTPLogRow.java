@@ -1,4 +1,4 @@
-package main.java.com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,11 +37,11 @@ public class HTTPLogRow {
 
 		char[] lineChars = line.toCharArray();
 		int position = 0;
-		char lastChar = ' ';
+		int lastChar = -1;
 		char charToListen = ' ';
 		for (char currentChar : lineChars) {
 			// ignore consecutive spaces
-			if (lastChar == currentChar) {
+			if (lastChar == charToListen && lastChar == currentChar) {
 				continue;
 			}
 
@@ -79,8 +79,7 @@ public class HTTPLogRow {
 						logger.debug(ex.getMessage(), ex);
 					}
 					sbWork.setLength(0);
-				} 
-				else {
+				} else {
 					sbWork.append(currentChar);
 				}
 				if (currentChar == ']') {
@@ -101,7 +100,7 @@ public class HTTPLogRow {
 				if (currentChar == ' ') {
 					position++;
 					reqResource = sbWork.toString();
-					//get section
+					// get section
 					int secondSlashIndex = reqResource.indexOf('/', 1);
 					reqSection = reqResource.substring(0,
 							secondSlashIndex > 0 ? secondSlashIndex : reqResource.length());
@@ -133,17 +132,17 @@ public class HTTPLogRow {
 				}
 				break;
 			case CONTENTLENGTH_POSITION:
-				if (currentChar == ' ') {
-					position++;
-					try {
-						contentLength = Integer.parseInt(sbWork.toString());
-					} catch (NumberFormatException ex) {
-						logger.debug(ex.getMessage(), ex);
-					}
-					sbWork.setLength(0);
-				} else {
+//				if (currentChar == ' ') {
+//					position++;
+//					try {
+//						contentLength = Integer.parseInt(sbWork.toString());
+//					} catch (NumberFormatException ex) {
+//						logger.debug(ex.getMessage(), ex);
+//					}
+//					sbWork.setLength(0);
+//				} else {
 					sbWork.append(currentChar);
-				}
+//				}
 				break;
 			default:
 				if (currentChar == ' ') {
@@ -151,7 +150,15 @@ public class HTTPLogRow {
 				}
 				break;
 			}
+			lastChar = currentChar;
 		}
+		//get content length
+		try {
+			contentLength = Integer.parseInt(sbWork.toString());
+		} catch (NumberFormatException ex) {
+			logger.debug(ex.getMessage(), ex);
+		}
+		sbWork.setLength(0);
 
 	}
 

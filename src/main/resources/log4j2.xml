@@ -3,7 +3,7 @@
  
     <!-- Logging Properties -->
     <Properties>
-        <Property name="LOG_PATTERN">%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n</Property>
+        <Property name="LOG_PATTERN">%m%n</Property>
     </Properties>
      
     <Appenders>

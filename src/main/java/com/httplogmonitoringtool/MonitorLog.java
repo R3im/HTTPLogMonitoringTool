@@ -1,25 +1,22 @@
-package main.java.com.httplogmonitoringtool;
+package com.httplogmonitoringtool;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.stream.Stream;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 
-import main.java.com.httplogmonitoringtool.model.HTTPLogRow;
-import main.java.com.httplogmonitoringtool.model.HTTPStats;
-import main.java.com.httplogmonitoringtool.model.HTTPStatsType;
+import com.httplogmonitoringtool.model.HTTPLogRow;
+import com.httplogmonitoringtool.model.HTTPStats;
+import com.httplogmonitoringtool.model.HTTPStatsType;
 
 public class MonitorLog {
 
@@ -27,7 +24,7 @@ public class MonitorLog {
 	private final static Logger logger = LogManager.getLogger(MonitorLog.class.getName());
 
 	private final static int STATS_REFRESHING_FREQUENCY = 1000 * 10;
-	private final static int ALERT_MONITORING_TIME = 1000 * 60 * 2;
+	private final static int ALERT_MONITORING_TIME = 1000 * 10;//60 * 2;
 	/**
 	 * request per seconds
 	 */
@@ -36,11 +33,14 @@ public class MonitorLog {
 	private final HTTPStats totalLogStats = new HTTPStats();
 	private final HTTPStats shortLogStats = new HTTPStats();
 
+	private final ArrayList<Long> alertMonitoringTimes = new ArrayList<Long>();
+
 	public static void main(String[] args) throws IOException {
 		new MonitorLog().startMonitoring();
 	}
 
 	public void startMonitoring() {
+		refreshStats();
 		long lastReadedLine = 0;
 		Date lastStatsRefringTime = new Date();
 		while (true) {
@@ -68,6 +68,17 @@ public class MonitorLog {
 				lastStatsRefringTime = currentTime;
 				refreshStats();
 			}
+			// alert
+			if (!alertMonitoringTimes.isEmpty()
+					&& currentTime.getTime() - alertMonitoringTimes.get(0) >= ALERT_MONITORING_TIME) {
+				alertMonitoringTimes.remove(0);
+				if (alertMonitoringTimes.size()
+						/ ((currentTime.getTime() - alertMonitoringTimes.get(0)) / 1000) > ALERT_AVERAGE_TRESHOLD) {
+
+					appendLog("alert!!!");
+				}
+			}
+			alertMonitoringTimes.add(currentTime.getTime());
 		}
 	}
 
@@ -85,14 +96,6 @@ public class MonitorLog {
 				totalLogStats.increase(HTTPStatsType.VALID_REQUESTS);
 				shortLogStats.increase(HTTPStatsType.VALID_REQUESTS);
 				break;
-			case 300:
-				break;
-			case 301:
-				break;
-			case 302:
-				break;
-			case 307:
-				break;
 			case 400:
 				totalLogStats.increase(HTTPStatsType.FAILED_REQUESTS);
 				shortLogStats.increase(HTTPStatsType.FAILED_REQUESTS);
@@ -103,14 +106,97 @@ public class MonitorLog {
 			default:
 				break;
 			}
-			//section hitted
+			// section hitted
 			totalLogStats.sectionHitted(logRow.getReqSection());
 			shortLogStats.sectionHitted(logRow.getReqSection());
 		}
 	}
 
+	private final static String os = System.getProperty("os.name");
+
 	private void refreshStats() {
-		logger.debug(shortLogStats.toString());
+		try {
+			if (os.contains("Windows")) {
+				Runtime.getRuntime().exec("cls");
+			} else {
+				Runtime.getRuntime().exec("clear");
+			}
+		} catch (final IOException e) {
+			for (int i = 0; i < 20; ++i)
+				logger.debug("");
+		}
+		appendLog("-----------------------------------------");
+		appendLog("-------HTTP traffic monitoring log-------");
+		appendLog("-----------------------------------------");
+		appendLog("--Total stats--");
+		logStats(totalLogStats);
+		appendLog("-----------------------------------------");
+		appendLog("--Last ", "" + STATS_REFRESHING_FREQUENCY / 1000, " seconds stats--");
+		logStats(shortLogStats);
+		appendLog("-----------------------------------------");
+
+		// clear short stast
 		shortLogStats.clear();
+	}
+
+	private void logStats(HTTPStats stats) {
+
+		HashMap<String, Integer> hitSections = stats.getMostHitSection();
+
+		appendLog("Most hit section (", "" + hitSections.size(), "/", "" + hitSections.size(), "):");
+
+		StringBuilder statLogRow = new StringBuilder();
+		int count = 0;
+		for (Entry<String, Integer> entry : hitSections.entrySet()) {
+			count++;
+//			appendLog("\"",entry.getKey(),"\":",entry.getValue().toString());
+			statLogRow.append("\"");
+			statLogRow.append(entry.getKey());
+			statLogRow.append("\":");
+			statLogRow.append(entry.getValue().toString());
+
+			if (count % 3 == 0 || count == hitSections.size()) {
+				appendLog(statLogRow.toString());
+				statLogRow.setLength(0);
+			} else {
+				statLogRow.append("\t\t");
+			}
+		}
+
+		for (int i = 0; i < (stats.MOST_HIT_SECTION_DISPLAYED - hitSections.size()) / 3; i++) {
+			appendLog(" ");
+		}
+
+		appendLog("Request summary:");
+
+		HashMap<HTTPStatsType, Integer> statsValues = stats.getStatsValues();
+
+		// stats value
+		count = 0;
+		for (Entry<HTTPStatsType, Integer> entry : statsValues.entrySet()) {
+			count++;
+//			appendLog(entry.getKey().toString(), ": ", entry.getValue().toString());
+			statLogRow.append(entry.getKey().toString());
+			statLogRow.append(": ");
+			statLogRow.append(entry.getValue().toString());
+			if (HTTPStatsType.TOTAL_CONTENT == entry.getKey()) {
+				statLogRow.append(entry.getValue() > 0 ? " bytes" : " byte");
+			}
+			if (count % 3 == 0 || count == statsValues.size()) {
+				appendLog(statLogRow.toString());
+				statLogRow.setLength(0);
+			} else {
+				statLogRow.append("\t\t");
+			}
+		}
+	}
+
+	private void appendLog(String... messages) {
+		StringBuilder logSB = new StringBuilder();
+		logSB.append("--");
+		for (String message : messages) {
+			logSB.append(message);
+		}
+		logger.debug(logSB.toString());
 	}
 }

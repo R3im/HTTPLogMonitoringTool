@@ -1,7 +1,8 @@
-package main.java.com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -11,7 +12,7 @@ public class HTTPStats {
 
 	private final HashMap<HTTPStatsType, Integer> stastValues = new HashMap<HTTPStatsType, Integer>();
 	private final HashMap<String, Integer> hitSections = new HashMap<String, Integer>();
-	private final static int MOST_HIT_SECTION_DISPLAYED = 3;
+	public final static int MOST_HIT_SECTION_DISPLAYED = 3;
 
 	public HTTPStats() {
 		clear();
@@ -35,23 +36,60 @@ public class HTTPStats {
 		}
 		hitSections.clear();
 	}
-	
+
+	public HashMap<String, Integer> getHitSection() {
+		return hitSections;
+	}
+
+	public HashMap<String, Integer> getMostHitSection() {
+
+		int maxCountSectionDisplay = hitSections.size() > MOST_HIT_SECTION_DISPLAYED ? MOST_HIT_SECTION_DISPLAYED
+				: hitSections.size();
+		// sort section map by most hit
+		HashMap<String, Integer> sortedMap = hitSections.entrySet().stream()
+				.sorted(Collections.reverseOrder(Entry.comparingByValue())).limit(maxCountSectionDisplay)
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+		return sortedMap;
+	}
+
+	public HashMap<HTTPStatsType, Integer> getStatsValues() {
+		return stastValues;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder statsSb = new StringBuilder();
-		statsSb.append("////////////////////\\\\\\\\\\\\\\\\\\\\");
-		//sort section map by most hit
-		HashMap<String, Integer> sortedMap = 
-				hitSections.entrySet().stream()
-			    .sorted(Entry.comparingByValue())
-			    .collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-			                              (e1, e2) -> e1, LinkedHashMap::new));
-		int maxCountSectionDeisplay = sortedMap.size()>MOST_HIT_SECTION_DISPLAYED?MOST_HIT_SECTION_DISPLAYED:sortedMap.size();
-		for(int i = 0; i<maxCountSectionDeisplay; i++) {
-			String[] values = (String[]) sortedMap.keySet().toArray();
-			statsSb.append(values[i]);
+		// sort section map by most hit
+		HashMap<String, Integer> sortedMap = hitSections.entrySet().stream()
+				.sorted(Collections.reverseOrder(Entry.comparingByValue()))
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		int maxCountSectionDisplay = sortedMap.size() > MOST_HIT_SECTION_DISPLAYED ? MOST_HIT_SECTION_DISPLAYED
+				: sortedMap.size();
+
+		statsSb.append("Most hit section (");
+		statsSb.append(maxCountSectionDisplay);
+		statsSb.append("/");
+		statsSb.append(hitSections.size());
+		statsSb.append("):\n");
+		for (int i = 0; i < MOST_HIT_SECTION_DISPLAYED; i++) {
+			if (i < maxCountSectionDisplay) {
+				Object[] values = sortedMap.entrySet().toArray();
+				Entry<String, Integer> entry = (Entry<String, Integer>) values[i];
+				statsSb.append("\"");
+				statsSb.append(entry.getKey());
+				statsSb.append("\":");
+				statsSb.append(entry.getValue());
+			}
+			statsSb.append("\n");
 		}
-		statsSb.append("\\\\\\\\\\\\\\\\\\\\////////////////////");
+		// stats value
+		for (Entry<HTTPStatsType, Integer> entry : stastValues.entrySet()) {
+			statsSb.append(entry.getKey().toString());
+			statsSb.append(": ");
+			statsSb.append(entry.getValue());
+			statsSb.append("\n");
+		}
 		return statsSb.toString();
 	}
 }

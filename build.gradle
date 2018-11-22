@@ -16,7 +16,7 @@
 		manifest {
 	        attributes 'Implementation-Title': 'HTTP Log Monitoring Tool',  
 	        	'Implementation-Version': version,
-	        	'Main-Class': 'main.java.com.httplogmonitoringtool.MonitorLog'
+	        	'Main-Class': 'com.httplogmonitoringtool.MonitorLog'
 	    }
 	    baseName = project.name + ''
 	    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

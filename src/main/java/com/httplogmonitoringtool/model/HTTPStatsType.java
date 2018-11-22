@@ -1,4 +1,4 @@
-package main.java.com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.model;
 
 public enum HTTPStatsType {
 	
@@ -6,7 +6,7 @@ public enum HTTPStatsType {
 	VALID_REQUESTS("Valid requests"),
 	FAILED_REQUESTS("Failed requests"),
 	NOTFOUND_REQUESTS("Not found requests"),
-	TOTAL_CONTENT("Total content");
+	TOTAL_CONTENT("Total content size");
 
     private final String value;
 
