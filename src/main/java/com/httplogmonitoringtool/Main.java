@@ -17,17 +17,17 @@ import com.httplogmonitoringtool.model.HTTPStatsType;
 
 public class Main {
 	private final static int STATS_REFRESHING_FREQUENCY = 1000 * 10;
-	
+
 	private static MonitorLog monitorLogs;
 	private final static int CONSOLE_WIDTH = 100;
 	private final static Logger logger = LogManager.getLogger(Main.class.getName());
 	private final static String os = System.getProperty("os.name");
 	private static Date lastStatsRefreshingTime = new Date();
-	
-	public static void main(String[] args) throws IOException {
+
+	public static void main(String[] args) {
 
 		monitorLogs = new MonitorLog();
-		
+
 		boolean showHelp = false;
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
@@ -48,9 +48,9 @@ public class Main {
 						if (monitorLogs.getAlertAverageTreshold() <= 0) {
 							showHelp = true;
 						}
-					} catch (NumberFormatException e) {  
+					} catch (NumberFormatException e) {
 						showHelp = true;
-					} 
+					}
 				}
 			}
 			if (showHelp) {
@@ -73,11 +73,9 @@ public class Main {
 			appendLog("File ", monitorLogs.getLogFilePath(), " does not exists.");
 			System.exit(0);
 		}
-		
+
 		startMonitoring();
 	}
-	
-
 
 	public static void startMonitoring() {
 
@@ -94,38 +92,22 @@ public class Main {
 			}
 		}
 	}
-	
 
 	private static void refreshStats() {
-		try {
-			if (os.contains("Windows")) {
-				Runtime.getRuntime().exec("cls");
-			} else {
-				Runtime.getRuntime().exec("clear");
-			}
-		} catch (final IOException e) {
-			for (int i = 0; i < 20; ++i)
-				logger.debug("");
-		}
-//		appendLog(".");
-//		appendLog("...............HTTP traffic monitoring log");
-//		appendLog(".");
-//		appendLog("....Total stats");
-//		logStats(totalLogStats);
-//		appendLog(".");
-//		appendLog("....Last ", "" + STATS_REFRESHING_FREQUENCY / 1000, " seconds stats");
-//		logStats(shortLogStats);
-//		appendLog(".");
+		clearConsole();
+
 		logStats();
 
 		// clear short stast
 		monitorLogs.getLogStats().clearSections();
+		monitorLogs.getLogStats().clearUsers();
+		monitorLogs.getLogStats().clearRemoteHosts();
 
 		// display alerts
-		if (!monitorLogs.getRisedAlerts().isEmpty()) {
+		if (!monitorLogs.getRaisedAlerts().isEmpty()) {
 			appendLog("     !!! ALERTS !!!");
 			appendLog(" ");
-			for (HTTPStatsAlert alert : monitorLogs.getRisedAlerts()) {
+			for (HTTPStatsAlert alert : monitorLogs.getRaisedAlerts()) {
 				appendLog(alert.toString());
 			}
 			appendLogFilled();
@@ -139,35 +121,46 @@ public class Main {
 		appendLog('-', "--- OVERALL REQUESTS ");
 		appendLog(" ");
 
-		HashMap<HTTPStatsType, Integer> statsValues = monitorLogs.getLogStats().getStatsValues();
+		HashMap<HTTPStatsType, Long> statsValues = monitorLogs.getLogStats().getStatsValues();
 
 		// stats value
 		int count = 0;
+//		int countVisible = 0;
 		StringBuilder statLogRow = new StringBuilder();
-		for (Entry<HTTPStatsType, Integer> entry : statsValues.entrySet()) {
+		for (Entry<HTTPStatsType, Long> entry : statsValues.entrySet()) {
 			count++;
+//			if (entry.getValue() > 0 || entry.getKey().getCode() == -1) {
+//				countVisible++;
 			statLogRow.append(entry.getKey().toString());
 			statLogRow.append(": ");
 			statLogRow.append(entry.getValue().toString());
 			if (HTTPStatsType.TOTAL_CONTENT == entry.getKey()) {
 				statLogRow.append(entry.getValue() > 0 ? " bytes" : " byte");
 			}
-			if (count % 3 == 0 || count == statsValues.size()) {
+//			}
+			if (count % 2 == 0 || count == statsValues.size()) {
 				appendLog(statLogRow.toString());
 				statLogRow.setLength(0);
 			} else {
-				statLogRow.append("       ");
+				// fill last part
+				for (int i = CONSOLE_WIDTH / 2 - statLogRow.length(); i >=0; i--) {
+					statLogRow.append(" ");
+				}
+//				statLogRow.append("- ");
 			}
 		}
 		appendLog(" ");
 		appendLog('-', "--- LAST ", "" + STATS_REFRESHING_FREQUENCY / 1000, " SECONDS ");
 		appendLog(" ");
+		appendLog("Most present user: ", monitorLogs.getLogStats().getTopUser());
+		appendLog("Most present remote host: ", monitorLogs.getLogStats().getTopRemoteHost());
 
 		HashMap<String, Integer> hitSections = monitorLogs.getLogStats().getMostHitSection();
 
 		appendLog("Most hit section (", "" + hitSections.size(), "/", "" + hitSections.size(), "):");
 
 		count = 0;
+		int partCount = 0;
 		for (Entry<String, Integer> entry : hitSections.entrySet()) {
 			count++;
 			statLogRow.append("\"");
@@ -179,18 +172,24 @@ public class Main {
 				appendLog(statLogRow.toString());
 				statLogRow.setLength(0);
 			} else {
-				statLogRow.append("   ");
+				partCount++;
+				// fill last part
+				for (int i = partCount*CONSOLE_WIDTH / 3 - statLogRow.length(); i >=0; i--) {
+					statLogRow.append(" ");
+				}
+//				statLogRow.append("   ");
 			}
 		}
 
 		for (int i = 0; i < (HTTPStats.MOST_HIT_SECTION_DISPLAYED - hitSections.size()) / 3; i++) {
 			appendLog(" ");
 		}
+
 		appendLog(" ");
 		appendLogFilled();
 
 	}
-	
+
 	private static void appendLogFilled() {
 		StringBuilder logSB = new StringBuilder();
 		for (int i = 0; i < CONSOLE_WIDTH; i++) {
@@ -216,5 +215,18 @@ public class Main {
 		}
 		logSB.append("-");
 		logger.debug(logSB.toString());
+	}
+
+	private static void clearConsole() {
+		try {
+			if (os.contains("Windows")) {
+				Runtime.getRuntime().exec("cls");
+			} else {
+				Runtime.getRuntime().exec("clear");
+			}
+		} catch (final IOException e) {
+			for (int i = 0; i < 20; ++i)
+				logger.debug("");
+		}
 	}
 }

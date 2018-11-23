@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
 public class HTTPLogRow {
 
@@ -31,11 +32,19 @@ public class HTTPLogRow {
 	private final static int CONTENTLENGTH_POSITION = 8;
 	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("[dd/MM/yyyy:HH:mm:ss ZZZ]");
 
-	public HTTPLogRow(String line) {
+	public HTTPLogRow(String line) throws HTTPLogRowFormatException {
 
 		StringBuilder sbWork = new StringBuilder();
 
 		char[] lineChars = line.toCharArray();
+
+		// test bad format log
+		if (lineChars.length == 0) {
+			throw new HTTPLogRowFormatException("Empty Row");
+		} else if (lineChars[0] == ' ') {
+			throw new HTTPLogRowFormatException("First char whitespace");
+		}
+
 		int position = 0;
 		int lastChar = -1;
 		char charToListen = ' ';
@@ -50,6 +59,9 @@ public class HTTPLogRow {
 				if (currentChar == charToListen) {
 					position++;
 					remoteHost = sbWork.toString();
+					if(Strings.isBlank(remoteHost))	{
+						throw new HTTPLogRowFormatException("RemoteHost is blank");
+					}
 					sbWork.setLength(0);
 				} else {
 					sbWork.append(currentChar);
@@ -61,6 +73,9 @@ public class HTTPLogRow {
 					charToListen = ']';
 					position++;
 					authUser = sbWork.toString();
+					if(Strings.isBlank(authUser))	{
+						throw new HTTPLogRowFormatException("AuthUser is blank");
+					}
 					sbWork.setLength(0);
 				} else {
 					sbWork.append(currentChar);
@@ -76,7 +91,7 @@ public class HTTPLogRow {
 					try {
 						reqDate = dateFormat.parse(sbWork.toString());
 					} catch (ParseException ex) {
-						logger.debug(ex.getMessage(), ex);
+						throw new HTTPLogRowFormatException("Date bad format");
 					}
 					sbWork.setLength(0);
 				} else {
@@ -91,6 +106,9 @@ public class HTTPLogRow {
 				if (currentChar == ' ') {
 					position++;
 					reqType = sbWork.toString();
+					if(Strings.isBlank(reqType))	{
+						throw new HTTPLogRowFormatException("ReqType is blank");
+					}
 					sbWork.setLength(0);
 				} else if (currentChar != '"') {
 					sbWork.append(currentChar);
@@ -100,6 +118,12 @@ public class HTTPLogRow {
 				if (currentChar == ' ') {
 					position++;
 					reqResource = sbWork.toString();
+					if(Strings.isBlank(reqResource))	{
+						throw new HTTPLogRowFormatException("ReqResource is blank");
+					}
+					else if(!reqResource.startsWith("/"))	{
+						throw new HTTPLogRowFormatException("ReqResource bad format");
+					}
 					// get section
 					int secondSlashIndex = reqResource.indexOf('/', 1);
 					reqSection = reqResource.substring(0,
@@ -113,6 +137,9 @@ public class HTTPLogRow {
 				if (currentChar == ' ') {
 					position++;
 					reqProtocol = sbWork.toString();
+					if(Strings.isBlank(reqResource))	{
+						throw new HTTPLogRowFormatException("ReqProtocol is blank");
+					}
 					sbWork.setLength(0);
 				} else if (currentChar != '"') {
 					sbWork.append(currentChar);
@@ -124,7 +151,7 @@ public class HTTPLogRow {
 					try {
 						reqSatus = Integer.parseInt(sbWork.toString());
 					} catch (NumberFormatException ex) {
-						logger.debug(ex.getMessage(), ex);
+						throw new HTTPLogRowFormatException("Status bad format");
 					}
 					sbWork.setLength(0);
 				} else {
@@ -132,17 +159,7 @@ public class HTTPLogRow {
 				}
 				break;
 			case CONTENTLENGTH_POSITION:
-//				if (currentChar == ' ') {
-//					position++;
-//					try {
-//						contentLength = Integer.parseInt(sbWork.toString());
-//					} catch (NumberFormatException ex) {
-//						logger.debug(ex.getMessage(), ex);
-//					}
-//					sbWork.setLength(0);
-//				} else {
-					sbWork.append(currentChar);
-//				}
+				sbWork.append(currentChar);
 				break;
 			default:
 				if (currentChar == ' ') {
@@ -152,11 +169,11 @@ public class HTTPLogRow {
 			}
 			lastChar = currentChar;
 		}
-		//get content length
+		// get content length
 		try {
 			contentLength = Integer.parseInt(sbWork.toString());
 		} catch (NumberFormatException ex) {
-			logger.debug(ex.getMessage(), ex);
+			throw new HTTPLogRowFormatException("Content length bad format");
 		}
 		sbWork.setLength(0);
 

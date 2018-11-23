@@ -14,17 +14,19 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 
 import com.httplogmonitoringtool.model.HTTPLogRow;
+import com.httplogmonitoringtool.model.HTTPLogRowFormatException;
 import com.httplogmonitoringtool.model.HTTPStats;
 import com.httplogmonitoringtool.model.HTTPStatsAlert;
 import com.httplogmonitoringtool.model.HTTPStatsAlertType;
 import com.httplogmonitoringtool.model.HTTPStatsType;
+import com.httplogmonitoringtool.tests.MonitorLogTest;
 
 public class MonitorLog {
 
 	private String logFilePath = "/tmp/access.log";
 	private final static Logger logger = LogManager.getLogger(MonitorLogTest.class.getName());
 
-	private final static int ALERT_MONITORING_TIME = 1000 * 60 * 2;
+	private int alertMonitoringTime = 1000 * 60 * 2;
 	/**
 	 * request per seconds
 	 */
@@ -35,14 +37,13 @@ public class MonitorLog {
 
 	private List<Long> alertMonitoringTimes = new ArrayList<Long>();
 
-	private final ArrayList<HTTPStatsAlert> risedAlerts = new ArrayList<HTTPStatsAlert>();
+	private final ArrayList<HTTPStatsAlert> raisedAlerts = new ArrayList<HTTPStatsAlert>();
 
 	private long lastReadedLine = 0;
 
 	public boolean updateStats() {
 
 		// consume log file
-		Date currentTime = new Date();
 		boolean fileLogsHasChanged = false;
 		try (FileInputStream fstream = new FileInputStream(logFilePath)) {
 			BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
@@ -64,24 +65,26 @@ public class MonitorLog {
 		}
 
 		if (fileLogsHasChanged) {
+			Date currentTime = new Date();
 			// alert
 			if (!alertMonitoringTimes.isEmpty()
-					&& currentTime.getTime() - alertMonitoringTimes.get(0) >= ALERT_MONITORING_TIME) {
+					&& currentTime.getTime() - alertMonitoringTimes.get(0) >= alertMonitoringTime) {
 				long checkedTimePeriod = currentTime.getTime() - alertMonitoringTimes.get(0);
 				// TODO round up
-				int trafficAverage = (int) (alertMonitoringTimes.size() / (checkedTimePeriod / 1000));
+				int trafficAverage = (int)Math.ceil(((float)alertMonitoringTimes.size() / (float)(checkedTimePeriod / 1000)));
 //				appendLog("trafficAverage:", trafficAverage + "", "\t", "logs:", alertMonitoringTimes.size() + "",
 //						"\t", "time:", ((currentTime.getTime() - alertMonitoringTimes.get(0)) / 1000) + "", "\t");
-				if (risedAlerts.isEmpty() || !HTTPStatsAlertType.HIGH_TRAFFIC
-						.equals(risedAlerts.get(risedAlerts.size() - 1).getType())) {
+				logger.debug("trafficAverage:"+ trafficAverage);
+				if (raisedAlerts.isEmpty() || !HTTPStatsAlertType.HIGH_TRAFFIC
+						.equals(raisedAlerts.get(raisedAlerts.size() - 1).getType())) {
 					if (trafficAverage > alertAverageTreshold) {
-						risedAlerts.add(
+						raisedAlerts.add(
 								new HTTPStatsAlert(HTTPStatsAlertType.HIGH_TRAFFIC, trafficAverage, currentTime));
 					}
-				} else if (!risedAlerts.isEmpty() && HTTPStatsAlertType.HIGH_TRAFFIC
-						.equals(risedAlerts.get(risedAlerts.size() - 1).getType())) {
+				} else if (!raisedAlerts.isEmpty() && HTTPStatsAlertType.HIGH_TRAFFIC
+						.equals(raisedAlerts.get(raisedAlerts.size() - 1).getType())) {
 					if (trafficAverage < alertAverageTreshold) {
-						risedAlerts.add(
+						raisedAlerts.add(
 								new HTTPStatsAlert(HTTPStatsAlertType.LOW_TRAFFIC, trafficAverage, currentTime));
 					}
 				}
@@ -101,10 +104,12 @@ public class MonitorLog {
 	
 	private void consumeLine(String line) {
 
+		try {
+			
 		HTTPLogRow logRow = new HTTPLogRow(line);
 
 		if (Strings.isNotBlank(logRow.getAuthUser())) {
-			logStats.increase(HTTPStatsType.TOTAL_REQUESTS);
+			logStats.increase(HTTPStatsType.TOTAL_CONTENT, logRow.getContentLength());
 			logStats.increase(HTTPStatsType.TOTAL_REQUESTS);
 			switch (logRow.getReqSatus()) {
 			case 200:
@@ -118,8 +123,16 @@ public class MonitorLog {
 			default:
 				break;
 			}
-			// section hitted
-			logStats.sectionHitted(logRow.getReqSection());
+			// section add
+			logStats.addSection(logRow.getReqSection());
+			// user count
+			logStats.addUser(logRow.getAuthUser());
+			// remoteHost count
+			logStats.addRemoteHost(logRow.getRemoteHost());
+		}
+		}
+		catch (HTTPLogRowFormatException e) {
+			logStats.increase(HTTPStatsType.TOTAL_BAD_FORMAT_LOG);
 		}
 	}
 
@@ -190,13 +203,21 @@ public class MonitorLog {
 	public void setAlertAverageTreshold(int alertAverageTreshold) {
 		this.alertAverageTreshold = alertAverageTreshold;
 	}
+	
+	public int getAlertMonitoringTime() {
+		return alertMonitoringTime;
+	}
+
+	public void setAlertMonitoringTime(int alertMonitoringTime) {
+		this.alertMonitoringTime = alertMonitoringTime;
+	}
 
 	public HTTPStats getLogStats() {
 		return logStats;
 	}
 
-	public ArrayList<HTTPStatsAlert> getRisedAlerts() {
-		return risedAlerts;
+	public ArrayList<HTTPStatsAlert> getRaisedAlerts() {
+		return raisedAlerts;
 	}
  
 	
