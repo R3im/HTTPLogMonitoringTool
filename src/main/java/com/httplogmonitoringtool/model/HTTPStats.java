@@ -36,6 +36,10 @@ public class HTTPStats {
 		}
 		hitSections.clear();
 	}
+	
+	public void clearSections() {
+		hitSections.clear();
+	}
 
 	public HashMap<String, Integer> getHitSection() {
 		return hitSections;
