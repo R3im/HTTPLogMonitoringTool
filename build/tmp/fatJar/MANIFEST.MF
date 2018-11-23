@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Title: HTTP Log Monitoring Tool
+Implementation-Version: 1.0
+Main-Class: com.httplogmonitoringtool.Main
+

@@ -21,7 +21,7 @@ public class Main {
 	private static MonitorLog monitorLogs;
 	private final static int CONSOLE_WIDTH = 100;
 	private final static Logger logger = LogManager.getLogger(Main.class.getName());
-	private final static String os = System.getProperty("os.name");
+	private final static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
 	private static Date lastStatsRefreshingTime = new Date();
 
 	public static void main(String[] args) {
@@ -98,27 +98,29 @@ public class Main {
 
 		logStats();
 
-		// clear short stast
+		// clear short stats
 		monitorLogs.getLogStats().clearSections();
 		monitorLogs.getLogStats().clearUsers();
 		monitorLogs.getLogStats().clearRemoteHosts();
 
 		// display alerts
 		if (!monitorLogs.getRaisedAlerts().isEmpty()) {
-			appendLog("     !!! ALERTS !!!");
+			appendLogTitle(" !!! ALERTS !!! ");
 			appendLog(" ");
 			for (HTTPStatsAlert alert : monitorLogs.getRaisedAlerts()) {
 				appendLog(alert.toString());
 			}
+			appendLog(" ");
 			appendLogFilled();
 		}
 	}
 
 	private static void logStats() {
 		appendLogFilled();
-		appendLog('-', "--- HTTP TRAFFIC MONITORING LOG ");
+
+		appendLogTitle(" HTTP TRAFFIC MONITORING LOG ");
 		appendLogFilled();
-		appendLog('-', "--- OVERALL REQUESTS ");
+		appendLogTitle(" OVERALL REQUESTS ");
 		appendLog(" ");
 
 		HashMap<HTTPStatsType, Long> statsValues = monitorLogs.getLogStats().getStatsValues();
@@ -143,14 +145,14 @@ public class Main {
 				statLogRow.setLength(0);
 			} else {
 				// fill last part
-				for (int i = CONSOLE_WIDTH / 2 - statLogRow.length(); i >=0; i--) {
+				for (int i = CONSOLE_WIDTH / 2 - statLogRow.length(); i >= 0; i--) {
 					statLogRow.append(" ");
 				}
 //				statLogRow.append("- ");
 			}
 		}
 		appendLog(" ");
-		appendLog('-', "--- LAST ", "" + STATS_REFRESHING_FREQUENCY / 1000, " SECONDS ");
+		appendLogTitle(" LAST " + STATS_REFRESHING_FREQUENCY / 1000 + " SECONDS ");
 		appendLog(" ");
 		appendLog("Most present user: ", monitorLogs.getLogStats().getTopUser());
 		appendLog("Most present remote host: ", monitorLogs.getLogStats().getTopRemoteHost());
@@ -165,7 +167,7 @@ public class Main {
 			count++;
 			statLogRow.append("\"");
 			statLogRow.append(entry.getKey());
-			statLogRow.append("\":");
+			statLogRow.append("\": ");
 			statLogRow.append(entry.getValue().toString());
 
 			if (count % 3 == 0 || count == hitSections.size()) {
@@ -174,7 +176,7 @@ public class Main {
 			} else {
 				partCount++;
 				// fill last part
-				for (int i = partCount*CONSOLE_WIDTH / 3 - statLogRow.length(); i >=0; i--) {
+				for (int i = partCount * CONSOLE_WIDTH / 3 - statLogRow.length(); i >= 0; i--) {
 					statLogRow.append(" ");
 				}
 //				statLogRow.append("   ");
@@ -198,6 +200,16 @@ public class Main {
 		logger.debug(logSB.toString());
 	}
 
+	private static void appendLogTitle(String title) {
+		StringBuilder statLogRow = new StringBuilder();
+		// fill last part
+		for (int i = CONSOLE_WIDTH / 2 - title.length() / 2 - 6; i >= 0; i--) {
+			statLogRow.append("-");
+		}
+		statLogRow.append(title);
+		appendLog('-', statLogRow.toString());
+	}
+
 	private static void appendLog(String... messages) {
 		appendLog(' ', messages);
 	}
@@ -219,14 +231,15 @@ public class Main {
 
 	private static void clearConsole() {
 		try {
-			if (os.contains("Windows")) {
-				Runtime.getRuntime().exec("cls");
+			if (isWindows) {
+				Runtime.getRuntime().exec("cls").waitFor();
 			} else {
 				Runtime.getRuntime().exec("clear");
 			}
-		} catch (final IOException e) {
-			for (int i = 0; i < 20; ++i)
+		} catch (final IOException | InterruptedException e) {
+			for (int i = 0; i < 50; ++i) {
 				logger.debug("");
+			}
 		}
 	}
 }

@@ -30,10 +30,12 @@ public class TrafficFakeLogThread extends Thread {
 	public final static String[] UNIQUE_LOGS = new String[] {
 			"127.0.0.1 - robert %s \"DELETE /api HTTP/1.0\" 503 189\n" };
 
-	public final static String[] FALS_LOGS = new String[] { "ffffffffffffffffffffffffffffffffff\n",
-			"f zef ef fez \n",
-			"                             \n",
-			"127.0.0.1 sophie %s \"PUT /sport HTTP/1.0\" 404 10\n" };
+	public final static String[] FALS_LOGS = new String[] { "", "ffffffffffffffffffffffffffffffffff\n",
+			"f zef ef fez \n", "                             \n",
+			"127.0.0.1 sophie %s \"PUT /sport HTTP/1.0\" 404 10\n",
+			"127.0.0.1 - sophie %s \"PUT /sport HTTP/1.0\" 404 aa\n",
+			"127.0.0.1 - sophie %s \"PUT /sport HTTP/1.0\" bbb, aa\n",
+			"127.0.0.1 - sophie [oooo] \"PUT /sport HTTP/1.0\" bbb, aa\n" };
 
 	private String[] logArray = DEFAULT_LOGS;
 
