@@ -1,21 +1,21 @@
 package com.httplogmonitoringtool.model;
 
 public enum HTTPStatsAlertType {
-	
-	HIGH_TRAFFIC("High traffic generated an alert - hits = %s, triggered at %s"),
-	LOW_TRAFFIC("Back to normal traffic - hits = %s, triggered at %s");
 
-    private final String value;
+	HIGH_TRAFFIC("High traffic generated an alert - hits = %s/s, triggered at %s"),
+	LOW_TRAFFIC("Back to normal traffic - hits = %s/s, triggered at %s");
 
-    /**
-     * @param value
-     */
-    private HTTPStatsAlertType(final String value) {
-        this.value = value;
-    }
+	private final String value;
 
-    @Override
-    public String toString() {
-    	return value;
-    }
+	/**
+	 * @param value
+	 */
+	private HTTPStatsAlertType(final String value) {
+		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return value;
+	}
 }

@@ -16,6 +16,8 @@ import org.apache.logging.log4j.util.Strings;
 
 import com.httplogmonitoringtool.model.HTTPLogRow;
 import com.httplogmonitoringtool.model.HTTPStats;
+import com.httplogmonitoringtool.model.HTTPStatsAlert;
+import com.httplogmonitoringtool.model.HTTPStatsAlertType;
 import com.httplogmonitoringtool.model.HTTPStatsType;
 
 public class MonitorLog {
@@ -24,7 +26,7 @@ public class MonitorLog {
 	private final static Logger logger = LogManager.getLogger(MonitorLog.class.getName());
 
 	private final static int STATS_REFRESHING_FREQUENCY = 1000 * 10;
-	private final static int ALERT_MONITORING_TIME = 1000 * 10;//60 * 2;
+	private final static int ALERT_MONITORING_TIME = 1000 * 10;// 60 * 2;
 	/**
 	 * request per seconds
 	 */
@@ -34,6 +36,8 @@ public class MonitorLog {
 	private final HTTPStats shortLogStats = new HTTPStats();
 
 	private final ArrayList<Long> alertMonitoringTimes = new ArrayList<Long>();
+
+	private final ArrayList<HTTPStatsAlert> risedAlerts = new ArrayList<HTTPStatsAlert>();
 
 	public static void main(String[] args) throws IOException {
 		new MonitorLog().startMonitoring();
@@ -72,13 +76,25 @@ public class MonitorLog {
 			if (!alertMonitoringTimes.isEmpty()
 					&& currentTime.getTime() - alertMonitoringTimes.get(0) >= ALERT_MONITORING_TIME) {
 				alertMonitoringTimes.remove(0);
-				if (alertMonitoringTimes.size()
-						/ ((currentTime.getTime() - alertMonitoringTimes.get(0)) / 1000) > ALERT_AVERAGE_TRESHOLD) {
-
-					appendLog("alert!!!");
+				// TODO round up
+				int trafficAverage = (int) (alertMonitoringTimes.size()
+						/ ((currentTime.getTime() - alertMonitoringTimes.get(0)) / 1000));
+				if (risedAlerts.isEmpty()
+						|| !HTTPStatsAlertType.HIGH_TRAFFIC.equals(risedAlerts.get(risedAlerts.size() - 1).getType())) {
+					if (trafficAverage > ALERT_AVERAGE_TRESHOLD) {
+						risedAlerts
+								.add(new HTTPStatsAlert(HTTPStatsAlertType.HIGH_TRAFFIC, trafficAverage, currentTime));
+					}
+				} else if (!risedAlerts.isEmpty()
+						&& HTTPStatsAlertType.HIGH_TRAFFIC.equals(risedAlerts.get(risedAlerts.size() - 1).getType())) {
+					if (trafficAverage < ALERT_AVERAGE_TRESHOLD) {
+						risedAlerts
+								.add(new HTTPStatsAlert(HTTPStatsAlertType.LOW_TRAFFIC, trafficAverage, currentTime));
+					}
 				}
 			}
 			alertMonitoringTimes.add(currentTime.getTime());
+
 		}
 	}
 
@@ -137,6 +153,15 @@ public class MonitorLog {
 
 		// clear short stast
 		shortLogStats.clear();
+
+		// display alerts
+		if (!risedAlerts.isEmpty()) {
+			appendLog("-------ALERTS-!!!-------");
+			for (HTTPStatsAlert alert : risedAlerts) {
+				appendLog(alert.toString());
+			}
+		}
+		appendLog("-----------------------------------------");
 	}
 
 	private void logStats(HTTPStats stats) {
@@ -149,7 +174,6 @@ public class MonitorLog {
 		int count = 0;
 		for (Entry<String, Integer> entry : hitSections.entrySet()) {
 			count++;
-//			appendLog("\"",entry.getKey(),"\":",entry.getValue().toString());
 			statLogRow.append("\"");
 			statLogRow.append(entry.getKey());
 			statLogRow.append("\":");
@@ -163,7 +187,7 @@ public class MonitorLog {
 			}
 		}
 
-		for (int i = 0; i < (stats.MOST_HIT_SECTION_DISPLAYED - hitSections.size()) / 3; i++) {
+		for (int i = 0; i < (HTTPStats.MOST_HIT_SECTION_DISPLAYED - hitSections.size()) / 3; i++) {
 			appendLog(" ");
 		}
 
@@ -175,7 +199,6 @@ public class MonitorLog {
 		count = 0;
 		for (Entry<HTTPStatsType, Integer> entry : statsValues.entrySet()) {
 			count++;
-//			appendLog(entry.getKey().toString(), ": ", entry.getValue().toString());
 			statLogRow.append(entry.getKey().toString());
 			statLogRow.append(": ");
 			statLogRow.append(entry.getValue().toString());
