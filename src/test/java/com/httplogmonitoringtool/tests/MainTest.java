@@ -40,7 +40,7 @@ public class MainTest {
 	public void testFileNotFound() {
 		try {
 	        exit.expectSystemExit();
-			Main.main(new String[] { "-l", "/tmp/file_not_existing.log" });
+			Main.main(new String[] { "-l", "/var/log/file_not_existing.log" });
 			Assert.fail("Should be exited");
 		} finally {
 			Assert.assertTrue("Message file does not exists not found",

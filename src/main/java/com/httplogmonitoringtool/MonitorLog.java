@@ -18,11 +18,12 @@ import com.httplogmonitoringtool.model.HTTPLogRowFormatException;
 import com.httplogmonitoringtool.model.HTTPStats;
 import com.httplogmonitoringtool.model.HTTPStatsAlert;
 import com.httplogmonitoringtool.model.HTTPStatsAlertType;
+import com.httplogmonitoringtool.model.HTTPStatsStatus;
 import com.httplogmonitoringtool.model.HTTPStatsType;
 
 public class MonitorLog {
 
-	private String logFilePath = "/tmp/access.log";
+	private String logFilePath = "/var/log/access.log";
 	private final static Logger logger = LogManager.getLogger(MonitorLog.class.getName());
 
 	private int alertTimeWindow = 1000 * 60 * 2;
@@ -109,12 +110,15 @@ public class MonitorLog {
 
 			HTTPLogRow logRow = new HTTPLogRow(line);
 
-			if (Strings.isNotBlank(logRow.getAuthUser())) {
+			Date currentTime = new Date();
+			// check time logic
+			if (currentTime.getTime() > logRow.getReqDate().getTime()
+					&& (alertMonitoringTimes.isEmpty() || logRow.getReqDate().getTime() > alertMonitoringTimes.get(0))) {
 				logStats.increase(HTTPStatsType.TOTAL_CONTENT, logRow.getContentLength());
 				logStats.increase(HTTPStatsType.TOTAL_REQUESTS);
-				for (HTTPStatsType type : HTTPStatsType.values()) {
-					if (type.getCode() == logRow.getReqSatus()) {
-						logStats.increase(type);
+				for (HTTPStatsStatus status : HTTPStatsStatus.values()) {
+					if (status.getCode() == logRow.getReqSatus()) {
+						logStats.increase(status);
 					}
 				}
 				// section add

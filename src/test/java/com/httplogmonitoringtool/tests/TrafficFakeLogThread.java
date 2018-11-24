@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 public class TrafficFakeLogThread extends Thread {
 
-	public final static String LOG_FILE_PATH = "/tmp/access_test.log";
+	public final static String LOG_FILE_PATH = "/var/log/access_test.log";
 //	private final static Logger logger = LogManager.getLogger(TrafficFakeLogThread.class.getName());
 //	public final static int HIGH_SPEED = 50;
 //	public final static int LOW_SPEED = 2000;
@@ -35,7 +35,8 @@ public class TrafficFakeLogThread extends Thread {
 			"127.0.0.1 sophie %s \"PUT /sport HTTP/1.0\" 404 10\n",
 			"127.0.0.1 - sophie %s \"PUT /sport HTTP/1.0\" 404 aa\n",
 			"127.0.0.1 - sophie %s \"PUT /sport HTTP/1.0\" bbb, aa\n",
-			"127.0.0.1 - sophie [oooo] \"PUT /sport HTTP/1.0\" bbb, aa\n" };
+			"127.0.0.1 - sophie [oooo] \"PUT /sport HTTP/1.0\" bbb, aa\n" ,
+			"127.0.0.1 - lily [24/11/2222:16:05:35 +0100] \"DELETE /sport/volleyball HTTP/1.0\" 300 8\n" };
 
 	private String[] logArray = DEFAULT_LOGS;
 

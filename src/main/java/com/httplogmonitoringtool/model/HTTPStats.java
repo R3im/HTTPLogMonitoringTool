@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 
 public class HTTPStats {
 
-	private final HashMap<HTTPStatsType, Long> stastValues = new HashMap<HTTPStatsType, Long>();
+	private final HashMap<HTTPStatsType, Long> statsValues = new HashMap<HTTPStatsType, Long>();
+	private final HashMap<HTTPStatsStatus, Long> statsStatus = new HashMap<HTTPStatsStatus, Long>();
 	private final HashMap<String, Integer> hitSections = new HashMap<String, Integer>();
 	private final HashMap<String, Integer> userCount = new HashMap<String, Integer>();
 	private final HashMap<String, Integer> remoteHostsCount = new HashMap<String, Integer>();
@@ -24,7 +25,11 @@ public class HTTPStats {
 	}
 
 	public void increase(HTTPStatsType type, int value) {
-		stastValues.put(type, (long) (stastValues.get(type).intValue() + value));
+		statsValues.put(type, (long) (statsValues.get(type).intValue() + value));
+	}
+
+	public void increase(HTTPStatsStatus status) {
+		statsStatus.put(status, (long) (statsStatus.get(status).intValue() + 1));
 	}
 
 	public void addSection(String section) {
@@ -40,7 +45,10 @@ public class HTTPStats {
 
 	public void clear() {
 		for (HTTPStatsType type : HTTPStatsType.values()) {
-			stastValues.put(type, 0l);
+			statsValues.put(type, 0l);
+		}
+		for (HTTPStatsStatus type : HTTPStatsStatus.values()) {
+			statsStatus.put(type, 0l);
 		}
 		hitSections.clear();
 	}
@@ -97,7 +105,11 @@ public class HTTPStats {
 	}
 
 	public HashMap<HTTPStatsType, Long> getStatsValues() {
-		return stastValues;
+		return statsValues;
+	}
+
+	public HashMap<HTTPStatsStatus, Long> getStatsStatus() {
+		return statsStatus;
 	}
 
 	public int getAlertAverage() {
@@ -108,41 +120,4 @@ public class HTTPStats {
 		this.alertAverage = alertAverage;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder statsSb = new StringBuilder();
-		// sort section map by most hit
-		HashMap<String, Integer> sortedMap = hitSections.entrySet().stream()
-				.sorted(Collections.reverseOrder(Entry.comparingByValue()))
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		int maxCountSectionDisplay = sortedMap.size() > MOST_HIT_SECTION_DISPLAYED ? MOST_HIT_SECTION_DISPLAYED
-				: sortedMap.size();
-
-		statsSb.append("Most hit section (");
-		statsSb.append(maxCountSectionDisplay);
-		statsSb.append("/");
-		statsSb.append(hitSections.size());
-		statsSb.append("):\n");
-		for (int i = 0; i < MOST_HIT_SECTION_DISPLAYED; i++) {
-			if (i < maxCountSectionDisplay) {
-				Object[] values = sortedMap.entrySet().toArray();
-				Entry<String, Integer> entry = (Entry<String, Integer>) values[i];
-				statsSb.append("\"");
-				statsSb.append(entry.getKey());
-				statsSb.append("\":");
-				statsSb.append(entry.getValue());
-			}
-			statsSb.append("\n");
-		}
-		// stats value
-		for (Entry<HTTPStatsType, Long> entry : stastValues.entrySet()) {
-			statsSb.append(entry.getKey().toString());
-			statsSb.append(": ");
-			statsSb.append(entry.getValue());
-			statsSb.append("\n");
-		}
-		return statsSb.toString();
-	}
-	
-	
 }

@@ -13,6 +13,7 @@ import org.apache.logging.log4j.core.util.Integers;
 
 import com.httplogmonitoringtool.model.HTTPStats;
 import com.httplogmonitoringtool.model.HTTPStatsAlert;
+import com.httplogmonitoringtool.model.HTTPStatsStatus;
 import com.httplogmonitoringtool.model.HTTPStatsType;
 
 public class Main {
@@ -58,10 +59,10 @@ public class Main {
 				appendLog('-', "--- HTTP TRAFFIC MONITORING LOG ");
 				appendLogFilled();
 				appendLog('-', "--- HELP ");
-				logger.debug(" USAGE: HTTPLogMonitoringTool [option...] [--help] ");
-				logger.debug(" -?, -h, --help \t\tShows this help message.");
-				logger.debug(" -log, -l \t\tSet log file fullpath.");
-				logger.debug(" -alert_treshold, -at \t\tSet alert treshhold (>0).");
+				System.out.println(" USAGE: HTTPLogMonitoringTool [option...] [--help] ");
+				System.out.println(" -?, -h, --help \t\tShows this help message.");
+				System.out.println(" -log, -l \t\tSet log file fullpath.");
+				System.out.println(" -alert_treshold, -at \t\tSet alert treshhold (>0).");
 				appendLog(" ");
 				appendLogFilled();
 				System.exit(0);
@@ -81,6 +82,7 @@ public class Main {
 
 		// init consol stats
 		refreshStats();
+		
 		while (true) {
 			monitorLogs.updateStats();
 
@@ -95,9 +97,9 @@ public class Main {
 
 	private static void refreshStats() {
 		clearConsole();
-
+		
 		logStats();
-
+		
 		// clear short stats
 		monitorLogs.getLogStats().clearSections();
 		monitorLogs.getLogStats().clearUsers();
@@ -127,20 +129,16 @@ public class Main {
 
 		// stats value
 		int count = 0;
-//		int countVisible = 0;
 		StringBuilder statLogRow = new StringBuilder();
 		for (HTTPStatsType httpStatsType : HTTPStatsType.values()) {
 			Long value = statsValues.get(httpStatsType);
 			count++;
-//			if (entry.getValue() > 0 || entry.getKey().getCode() == -1) {
-//				countVisible++;
 			statLogRow.append(httpStatsType);
 			statLogRow.append(": ");
 			statLogRow.append(value);
 			if (HTTPStatsType.TOTAL_CONTENT == httpStatsType) {
 				statLogRow.append(value > 0 ? " bytes" : " byte");
 			}
-//			}
 			if (count % 2 == 0 || count == statsValues.size()) {
 				appendLog(statLogRow.toString());
 				statLogRow.setLength(0);
@@ -149,7 +147,28 @@ public class Main {
 				for (int i = CONSOLE_WIDTH / 2 - statLogRow.length(); i >= 0; i--) {
 					statLogRow.append(" ");
 				}
-//				statLogRow.append("- ");
+			}
+		}
+		appendLog(" ");
+		// stats status
+		count = 0;
+		statLogRow.setLength(0);
+		HashMap<HTTPStatsStatus, Long> statsStatus = monitorLogs.getLogStats().getStatsStatus();
+
+		for (HTTPStatsStatus httpStatsStatus : HTTPStatsStatus.values()) {
+			Long value = statsStatus.get(httpStatsStatus);
+			count++;
+			statLogRow.append(httpStatsStatus);
+			statLogRow.append(": ");
+			statLogRow.append(value);
+			if (count % 2 == 0 || count == statsStatus.size()) {
+				appendLog(statLogRow.toString());
+				statLogRow.setLength(0);
+			} else {
+				// fill last part
+				for (int i = CONSOLE_WIDTH / 2 - statLogRow.length(); i >= 0; i--) {
+					statLogRow.append(" ");
+				}
 			}
 		}
 		String alertTimeWindowUnit = "s";
@@ -207,7 +226,7 @@ public class Main {
 		for (int i = 0; i < CONSOLE_WIDTH; i++) {
 			logSB.append("-");
 		}
-		logger.debug(logSB.toString());
+		System.out.println(logSB.toString());
 	}
 
 	private static void appendLogTitle(String title) {
@@ -236,7 +255,7 @@ public class Main {
 			logSB.append(fillChar);
 		}
 		logSB.append("-");
-		logger.debug(logSB.toString());
+		System.out.println(logSB.toString());
 	}
 
 	private static void clearConsole() {
@@ -244,12 +263,13 @@ public class Main {
 //			if (isWindows) {
 //				Runtime.getRuntime().exec("cls").waitFor();
 //			} else {
-//				Runtime.getRuntime().exec("clear");
+//			    System.out.print("\033[H\033[2J");  
+////				Runtime.getRuntime().exec("clear");
 //			}
 //		} catch (final IOException | InterruptedException e) {
-		for (int i = 0; i < 50; ++i) {
-			logger.debug("");
-		}
+			for (int i = 0; i < 40; ++i) {
+				System.out.println();
+			}
 //		}
 	}
 }
