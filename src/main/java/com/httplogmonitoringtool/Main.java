@@ -129,7 +129,7 @@ public class Main {
 		int count = 0;
 //		int countVisible = 0;
 		StringBuilder statLogRow = new StringBuilder();
-		for(HTTPStatsType httpStatsType : HTTPStatsType.values()) {
+		for (HTTPStatsType httpStatsType : HTTPStatsType.values()) {
 			Long value = statsValues.get(httpStatsType);
 			count++;
 //			if (entry.getValue() > 0 || entry.getKey().getCode() == -1) {
@@ -240,16 +240,16 @@ public class Main {
 	}
 
 	private static void clearConsole() {
-		try {
-			if (isWindows) {
-				Runtime.getRuntime().exec("cls").waitFor();
-			} else {
-				Runtime.getRuntime().exec("clear");
-			}
-		} catch (final IOException | InterruptedException e) {
-			for (int i = 0; i < 50; ++i) {
-				logger.debug("");
-			}
+//		try {
+//			if (isWindows) {
+//				Runtime.getRuntime().exec("cls").waitFor();
+//			} else {
+//				Runtime.getRuntime().exec("clear");
+//			}
+//		} catch (final IOException | InterruptedException e) {
+		for (int i = 0; i < 50; ++i) {
+			logger.debug("");
 		}
+//		}
 	}
 }

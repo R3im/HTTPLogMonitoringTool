@@ -10,7 +10,7 @@ import org.apache.logging.log4j.util.Strings;
 
 public class HTTPLogRow {
 
-	private final static Logger logger = LogManager.getLogger(HTTPLogRow.class.getName());
+//	private final static Logger logger = LogManager.getLogger(HTTPLogRow.class.getName());
 
 	private String remoteHost;
 	private String authUser;
