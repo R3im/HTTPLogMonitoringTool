@@ -131,7 +131,7 @@ public class MonitorLogTest {
 
 			// init log monitor
 			MonitorLog monitorLogs = new MonitorLog();
-			monitorLogs.setAlertAverageTreshold(10);
+			monitorLogs.setAlertAverageThreshold(10);
 			monitorLogs.setAlertTimeWindow(alertMonitoringTime);
 			monitorLogs.setLogFilePath(TrafficFakeLogThread.LOG_FILE_PATH);
 

@@ -30,7 +30,7 @@ public class MonitorLog {
 	/**
 	 * request per seconds
 	 */
-	private int alertAverageTreshold = 10;
+	private int alertAverageThreshold = 10;
 
 	private final HTTPStats logStats = new HTTPStats();
 
@@ -75,18 +75,15 @@ public class MonitorLog {
 				int trafficAverage = (int) Math
 						.ceil(((float) alertMonitoringTimes.size() / (float) (checkedTimePeriod / 1000)));
 				logStats.setAlertAverage(trafficAverage);
-//				appendLog("trafficAverage:", trafficAverage + "", "\t", "logs:", alertMonitoringTimes.size() + "",
-//						"\t", "time:", ((currentTime.getTime() - alertMonitoringTimes.get(0)) / 1000) + "", "\t");
-//				logger.debug("trafficAverage:"+ trafficAverage);
 				if (raisedAlerts.isEmpty() || !HTTPStatsAlertType.HIGH_TRAFFIC
 						.equals(raisedAlerts.get(raisedAlerts.size() - 1).getType())) {
-					if (trafficAverage > alertAverageTreshold) {
+					if (trafficAverage > alertAverageThreshold) {
 						raisedAlerts
 								.add(new HTTPStatsAlert(HTTPStatsAlertType.HIGH_TRAFFIC, trafficAverage, currentTime));
 					}
 				} else if (!raisedAlerts.isEmpty() && HTTPStatsAlertType.HIGH_TRAFFIC
 						.equals(raisedAlerts.get(raisedAlerts.size() - 1).getType())) {
-					if (trafficAverage < alertAverageTreshold) {
+					if (trafficAverage < alertAverageThreshold) {
 						raisedAlerts
 								.add(new HTTPStatsAlert(HTTPStatsAlertType.LOW_TRAFFIC, trafficAverage, currentTime));
 					}
@@ -135,56 +132,6 @@ public class MonitorLog {
 		return null;
 	}
 
-//	private void logStats(HTTPStats stats) {
-//
-//		HashMap<String, Integer> hitSections = stats.getMostHitSection();
-//
-//		appendLog("Most hit section (", "" + hitSections.size(), "/", "" + hitSections.size(), "):");
-//
-//		StringBuilder statLogRow = new StringBuilder();
-//		int count = 0;
-//		for (Entry<String, Integer> entry : hitSections.entrySet()) {
-//			count++;
-//			statLogRow.append("\"");
-//			statLogRow.append(entry.getKey());
-//			statLogRow.append("\":");
-//			statLogRow.append(entry.getValue().toString());
-//
-//			if (count % 3 == 0 || count == hitSections.size()) {
-//				appendLog(statLogRow.toString());
-//				statLogRow.setLength(0);
-//			} else {
-//				statLogRow.append("   ");
-//			}
-//		}
-//
-//		for (int i = 0; i < (HTTPStats.MOST_HIT_SECTION_DISPLAYED - hitSections.size()) / 3; i++) {
-//			appendLog(".");
-//		}
-//
-//		appendLog("Request summary:");
-//
-//		HashMap<HTTPStatsType, Integer> statsValues = stats.getStatsValues();
-//
-//		// stats value
-//		count = 0;
-//		for (Entry<HTTPStatsType, Integer> entry : statsValues.entrySet()) {
-//			count++;
-//			statLogRow.append(entry.getKey().toString());
-//			statLogRow.append(": ");
-//			statLogRow.append(entry.getValue().toString());
-//			if (HTTPStatsType.TOTAL_CONTENT == entry.getKey()) {
-//				statLogRow.append(entry.getValue() > 0 ? " bytes" : " byte");
-//			}
-//			if (count % 3 == 0 || count == statsValues.size()) {
-//				appendLog(statLogRow.toString());
-//				statLogRow.setLength(0);
-//			} else {
-//				statLogRow.append("......");
-//			}
-//		}
-//	}
-
 	public String getLogFilePath() {
 		return logFilePath;
 	}
@@ -193,12 +140,12 @@ public class MonitorLog {
 		this.logFilePath = logFilePath;
 	}
 
-	public int getAlertAverageTreshold() {
-		return alertAverageTreshold;
+	public int getAlertAverageThreshold() {
+		return alertAverageThreshold;
 	}
 
-	public void setAlertAverageTreshold(int alertAverageTreshold) {
-		this.alertAverageTreshold = alertAverageTreshold;
+	public void setAlertAverageThreshold(int alertAverageThreshold) {
+		this.alertAverageThreshold = alertAverageThreshold;
 	}
 
 	public int getAlertTimeWindow() {

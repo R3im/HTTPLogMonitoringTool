@@ -23,7 +23,7 @@
     	exclude('com.httplogmonitoringtool.tests/*')
 	    with jar
 	}
-	//java -jar build/libs/HTTPLogMonitoringTool-1.0.jar
+	// java -jar build/libs/HTTPLogMonitoringTool-1.0.jar
 	
 	repositories {
 	    jcenter()

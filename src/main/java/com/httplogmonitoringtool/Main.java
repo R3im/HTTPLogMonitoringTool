@@ -1,14 +1,11 @@
 package com.httplogmonitoringtool;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.Integers;
 
 import com.httplogmonitoringtool.model.HTTPStats;
@@ -16,96 +13,152 @@ import com.httplogmonitoringtool.model.HTTPStatsAlert;
 import com.httplogmonitoringtool.model.HTTPStatsStatus;
 import com.httplogmonitoringtool.model.HTTPStatsType;
 
+/**
+ * 
+ * log MonitorLog results into console
+ * 
+ * @author Remi c
+ *
+ */
 public class Main {
+
+	/**
+	 * refreshing console log statistics
+	 */
 	private final static int STATS_REFRESHING_FREQUENCY = 1000 * 10;
 
-	private static MonitorLog monitorLogs;
+	/**
+	 * console width for console log design
+	 */
 	private final static int CONSOLE_WIDTH = 100;
-	private final static Logger logger = LogManager.getLogger(Main.class.getName());
-	private final static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+
+	/**
+	 * MonitorLog instance: Managing the HTTP traffic log parsing and statistic
+	 * processing
+	 */
+	private static MonitorLog monitorLogs = new MonitorLog();
+
+	/**
+	 * last statistic refreshing time since the last #STATS_REFRESHING_FREQUENCY
+	 */
 	private static Date lastStatsRefreshingTime = new Date();
 
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
-		monitorLogs = new MonitorLog();
-
-		boolean showHelp = false;
+		// argument processing
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
-			if (arg.equals("--help") || arg.equals("-h") || arg.equals("-?")) {
-				showHelp = true;
-			} else if (arg.equals("-log") || arg.equals("-l")) {
-				if (arg.length() <= i + 1) {
-					showHelp = true;
+
+			if (arg.equals("--help") || arg.equals("-h") || arg.equals("-?")) {// help option
+				showHelpLog();
+			} else if (arg.equals("-log") || arg.equals("-l")) {// HTTP log path option
+				if (arg.length() <= i + 1) {// bad parameter
+					showBadParameterLog();
 				} else {
 					monitorLogs.setLogFilePath(args[i + 1]);
 				}
-			} else if (arg.equals("-alert_treshold") || arg.equals("-at")) {
-				if (arg.length() <= i + 1) {
-					showHelp = true;
+			} else if (arg.equals("-alert_threshold") || arg.equals("-at")) {// Alert threshold option
+				if (arg.length() <= i + 1) {// bad parameter
+					showBadParameterLog();
 				} else {
 					try {
-						monitorLogs.setAlertAverageTreshold(Integers.parseInt(args[i + 1]));
-						if (monitorLogs.getAlertAverageTreshold() <= 0) {
-							showHelp = true;
+						monitorLogs.setAlertAverageThreshold(Integers.parseInt(args[i + 1]));
+						if (monitorLogs.getAlertAverageThreshold() <= 0) {// bad parameter
+							showBadParameterLog();
 						}
-					} catch (NumberFormatException e) {
-						showHelp = true;
+					} catch (NumberFormatException e) {// bad parameter
+						showBadParameterLog();
 					}
 				}
 			}
-			if (showHelp) {
-				appendLogFilled();
-				appendLog('-', "--- HTTP TRAFFIC MONITORING LOG ");
-				appendLogFilled();
-				appendLog('-', "--- HELP ");
-				System.out.println(" USAGE: HTTPLogMonitoringTool [option...] [--help] ");
-				System.out.println(" -?, -h, --help \t\tShows this help message.");
-				System.out.println(" -log, -l \t\tSet log file fullpath.");
-				System.out.println(" -alert_treshold, -at \t\tSet alert treshhold (>0).");
-				appendLog(" ");
-				appendLogFilled();
-				System.exit(0);
-			}
 		}
 
-		// exit if file does not exists
+		// test if file does not exists
 		if (!Files.exists(Paths.get(monitorLogs.getLogFilePath()))) {
 			appendLog("File ", monitorLogs.getLogFilePath(), " does not exists.");
 			System.exit(0);
 		}
 
+		// starts monitoring logs
 		startMonitoring();
 	}
 
-	public static void startMonitoring() {
+	/**
+	 * show help console log
+	 */
+	private static void showHelpLog() {
+		appendLogFilled();
+		appendLogTitle(" HTTP TRAFFIC MONITORING LOG ");
+		appendLogFilled();
+		appendLogTitle(" HELP ");
+		appendLogFilled();
+		System.out.println(" USAGE: HTTPLogMonitoringTool [option...] [--help] ");
+		System.out.println(" -?, -h, --help \t\tShows this help message.");
+		System.out.println(" -log, -l \t\tSet HTTP log file fullpath.");
+		System.out.println(" -alert_threshold, -at \t\tSet alert threshold (>0).");
+		appendLog('-', "-");
+		appendLogFilled();
+		System.exit(0);
+	}
 
-		// init consol stats
-		refreshStats();
-		
+	/**
+	 * show bad parameter console log also showing help
+	 */
+	private static void showBadParameterLog() {
+		System.out.println(" BAD PARAMETER !!!");
+		showHelpLog();
+	}
+
+	/**
+	 * starts monitoring HTTP logs
+	 */
+	private static void startMonitoring() {
+
+		// initialize console statistics console log
+		refreshStatsLog();
+
+		// infinite loop continually updating statistics and refreshing console log
+		// every #STATS_REFRESHING_FREQUENCY
 		while (true) {
+
+			// read logs and update statistics
 			monitorLogs.updateStats();
 
-			// refresh stats
+			// refresh statistics every #STATS_REFRESHING_FREQUENCY
 			Date currentTime = new Date();
 			if (currentTime.getTime() - lastStatsRefreshingTime.getTime() >= STATS_REFRESHING_FREQUENCY) {
 				lastStatsRefreshingTime = currentTime;
-				refreshStats();
+				// refresh console statistics console log
+				refreshStatsLog();
 			}
 		}
 	}
 
-	private static void refreshStats() {
+	/**
+	 * refresh console statistics console log
+	 */
+	private static void refreshStatsLog() {
 		clearConsole();
-		
+
 		logStats();
-		
-		// clear short stats
+
+		// clear short statistics
 		monitorLogs.getLogStats().clearSections();
 		monitorLogs.getLogStats().clearUsers();
 		monitorLogs.getLogStats().clearRemoteHosts();
 
-		// display alerts
+		// log all raised alerts
+		logAlerts();
+	}
+
+	/**
+	 * log all raised alerts
+	 */
+	private static void logAlerts() {
 		if (!monitorLogs.getRaisedAlerts().isEmpty()) {
 			appendLogTitle(" !!! ALERTS !!! ");
 			appendLog(" ");
@@ -117,27 +170,28 @@ public class Main {
 		}
 	}
 
+	/**
+	 * log statistics
+	 */
 	private static void logStats() {
+		// log title
 		appendLogFilled();
-
 		appendLogTitle(" HTTP TRAFFIC MONITORING LOG ");
 		appendLogFilled();
+
 		appendLogTitle(" OVERALL REQUESTS ");
 		appendLog(" ");
-
-		HashMap<HTTPStatsType, Long> statsValues = monitorLogs.getLogStats().getStatsValues();
-
-		// stats value
+		// log stats value
 		int count = 0;
 		StringBuilder statLogRow = new StringBuilder();
-		for (HTTPStatsType httpStatsType : HTTPStatsType.values()) {
-			Long value = statsValues.get(httpStatsType);
+		HashMap<HTTPStatsType, Long> statsValues = monitorLogs.getLogStats().getStatsValues();
+		for (Entry<HTTPStatsType, Long> entryValue : statsValues.entrySet()) {
 			count++;
-			statLogRow.append(httpStatsType);
+			statLogRow.append(entryValue.getKey());
 			statLogRow.append(": ");
-			statLogRow.append(value);
-			if (HTTPStatsType.TOTAL_CONTENT == httpStatsType) {
-				statLogRow.append(value > 0 ? " bytes" : " byte");
+			statLogRow.append(entryValue.getValue());
+			if (HTTPStatsType.TOTAL_CONTENT == entryValue.getKey()) {
+				statLogRow.append(entryValue.getValue() > 0 ? " bytes" : " byte");
 			}
 			if (count % 2 == 0 || count == statsValues.size()) {
 				appendLog(statLogRow.toString());
@@ -150,17 +204,16 @@ public class Main {
 			}
 		}
 		appendLog(" ");
-		// stats status
+
+		// log stats status
 		count = 0;
 		statLogRow.setLength(0);
 		HashMap<HTTPStatsStatus, Long> statsStatus = monitorLogs.getLogStats().getStatsStatus();
-
-		for (HTTPStatsStatus httpStatsStatus : HTTPStatsStatus.values()) {
-			Long value = statsStatus.get(httpStatsStatus);
+		for (Entry<HTTPStatsStatus, Long> entryStatus : statsStatus.entrySet()) {
 			count++;
-			statLogRow.append(httpStatsStatus);
+			statLogRow.append(entryStatus.getKey());
 			statLogRow.append(": ");
-			statLogRow.append(value);
+			statLogRow.append(entryStatus.getValue());
 			if (count % 2 == 0 || count == statsStatus.size()) {
 				appendLog(statLogRow.toString());
 				statLogRow.setLength(0);
@@ -171,6 +224,8 @@ public class Main {
 				}
 			}
 		}
+
+		// log alert windows average
 		String alertTimeWindowUnit = "s";
 		int reducedAlertTimeWindow = monitorLogs.getAlertTimeWindow() / 1000;
 		if (reducedAlertTimeWindow >= 60) {
@@ -181,13 +236,17 @@ public class Main {
 		appendLog("Last ", reducedAlertTimeWindow + "", alertTimeWindowUnit + "", " traffic average: ",
 				monitorLogs.getLogStats().getAlertAverage() + "", " requests/s");
 		appendLog(" ");
+		
+		//log las #STATS_REFRESHING_FREQUENCY ms statistics
 		appendLogTitle(" LAST " + STATS_REFRESHING_FREQUENCY / 1000 + " SECONDS ");
 		appendLog(" ");
+		//log most present user
 		appendLog("Most present user: ", monitorLogs.getLogStats().getTopUser());
+		//log most present remote host
 		appendLog("Most present remote host: ", monitorLogs.getLogStats().getTopRemoteHost());
 
+		// log most hit sections
 		HashMap<String, Integer> hitSections = monitorLogs.getLogStats().getMostHitSection();
-
 		appendLog("Most hit section (", "" + hitSections.size(), "/", "" + hitSections.size(), "):");
 
 		count = 0;
@@ -208,10 +267,9 @@ public class Main {
 				for (int i = partCount * CONSOLE_WIDTH / 3 - statLogRow.length(); i >= 0; i--) {
 					statLogRow.append(" ");
 				}
-//				statLogRow.append("   ");
 			}
 		}
-
+		// add empty log row when there is no value present
 		for (int i = 0; i < (HTTPStats.MOST_HIT_SECTION_DISPLAYED - hitSections.size()) / 3; i++) {
 			appendLog(" ");
 		}
@@ -221,6 +279,9 @@ public class Main {
 
 	}
 
+	/**
+	 * fill log row with '-' on #CONSOLE_WIDTH
+	 */
 	private static void appendLogFilled() {
 		StringBuilder logSB = new StringBuilder();
 		for (int i = 0; i < CONSOLE_WIDTH; i++) {
@@ -229,6 +290,11 @@ public class Main {
 		System.out.println(logSB.toString());
 	}
 
+	/**
+	 * log centered title surrounded by '-'
+	 * 
+	 * @param title
+	 */
 	private static void appendLogTitle(String title) {
 		StringBuilder statLogRow = new StringBuilder();
 		// fill last part
@@ -239,10 +305,21 @@ public class Main {
 		appendLog('-', statLogRow.toString());
 	}
 
+	/**
+	 * log messages bordered by '-'
+	 * 
+	 * @param messages
+	 */
 	private static void appendLog(String... messages) {
 		appendLog(' ', messages);
 	}
 
+	/**
+	 * log messages surrounded with #fillChar and bordered by '-'
+	 * 
+	 * @param fillChar
+	 * @param messages
+	 */
 	private static void appendLog(char fillChar, String... messages) {
 		StringBuilder logSB = new StringBuilder();
 		logSB.append("-" + fillChar + fillChar);
@@ -258,18 +335,12 @@ public class Main {
 		System.out.println(logSB.toString());
 	}
 
+	/**
+	 * clear console window TODO use windows and Linux bash command
+	 */
 	private static void clearConsole() {
-//		try {
-//			if (isWindows) {
-//				Runtime.getRuntime().exec("cls").waitFor();
-//			} else {
-//			    System.out.print("\033[H\033[2J");  
-////				Runtime.getRuntime().exec("clear");
-//			}
-//		} catch (final IOException | InterruptedException e) {
-			for (int i = 0; i < 40; ++i) {
-				System.out.println();
-			}
-//		}
+		for (int i = 0; i < 40; ++i) {
+			System.out.println();
+		}
 	}
 }
