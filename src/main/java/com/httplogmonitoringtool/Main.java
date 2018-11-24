@@ -129,15 +129,16 @@ public class Main {
 		int count = 0;
 //		int countVisible = 0;
 		StringBuilder statLogRow = new StringBuilder();
-		for (Entry<HTTPStatsType, Long> entry : statsValues.entrySet()) {
+		for(HTTPStatsType httpStatsType : HTTPStatsType.values()) {
+			Long value = statsValues.get(httpStatsType);
 			count++;
 //			if (entry.getValue() > 0 || entry.getKey().getCode() == -1) {
 //				countVisible++;
-			statLogRow.append(entry.getKey().toString());
+			statLogRow.append(httpStatsType);
 			statLogRow.append(": ");
-			statLogRow.append(entry.getValue().toString());
-			if (HTTPStatsType.TOTAL_CONTENT == entry.getKey()) {
-				statLogRow.append(entry.getValue() > 0 ? " bytes" : " byte");
+			statLogRow.append(value);
+			if (HTTPStatsType.TOTAL_CONTENT == httpStatsType) {
+				statLogRow.append(value > 0 ? " bytes" : " byte");
 			}
 //			}
 			if (count % 2 == 0 || count == statsValues.size()) {
@@ -151,6 +152,15 @@ public class Main {
 //				statLogRow.append("- ");
 			}
 		}
+		String alertTimeWindowUnit = "s";
+		int reducedAlertTimeWindow = monitorLogs.getAlertTimeWindow() / 1000;
+		if (reducedAlertTimeWindow >= 60) {
+			alertTimeWindowUnit = "min";
+			reducedAlertTimeWindow = reducedAlertTimeWindow / 60;
+		}
+		appendLog(" ");
+		appendLog("Last ", reducedAlertTimeWindow + "", alertTimeWindowUnit + "", " traffic average: ",
+				monitorLogs.getLogStats().getAlertAverage() + "", " requests/s");
 		appendLog(" ");
 		appendLogTitle(" LAST " + STATS_REFRESHING_FREQUENCY / 1000 + " SECONDS ");
 		appendLog(" ");

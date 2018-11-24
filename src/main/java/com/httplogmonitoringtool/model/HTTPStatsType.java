@@ -2,7 +2,7 @@ package com.httplogmonitoringtool.model;
 
 public enum HTTPStatsType {
 
-	TOTAL_REQUESTS("Total requests"), VALID_REQUESTS(200, "Valid requests"),
+	TOTAL_REQUESTS("Total requests"), TOTAL_CONTENT("Total content size"), VALID_REQUESTS(200, "Valid requests"),
 	FAILED_REQUESTS(400, "Bad Request requests"), NOTFOUND_REQUESTS(404, "Not Found requests"),
 	MULTIPLECHOICES_REQUESTS(300, "Multiple Choices requests"),
 	MOVEDPERMANENTLY_REQUESTS(301, "Moved Permanently requests"), FOUND_REQUESTS(302, "Found requests"),
@@ -11,7 +11,7 @@ public enum HTTPStatsType {
 	GONE_REQUESTS(410, "Gone requests"), INTERNALSERVERERROR_REQUESTS(500, "Internal Server Error requests"),
 	NOTIMPLEMENTED_REQUESTS(501, "Not Implemented requests"),
 	SERVICEUNAVAILABLE_REQUESTS(503, "Service Unavailable requests"),
-	PERMISSIONDENIED_REQUESTS(550, "Permission Denied requests"), TOTAL_CONTENT("Total content size"),
+	PERMISSIONDENIED_REQUESTS(550, "Permission Denied requests"), 
 	TOTAL_BAD_FORMAT_LOG(-2,"Total bad format logs");
 
 	private final int code;

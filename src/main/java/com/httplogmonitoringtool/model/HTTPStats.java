@@ -12,6 +12,7 @@ public class HTTPStats {
 	private final HashMap<String, Integer> hitSections = new HashMap<String, Integer>();
 	private final HashMap<String, Integer> userCount = new HashMap<String, Integer>();
 	private final HashMap<String, Integer> remoteHostsCount = new HashMap<String, Integer>();
+	private int alertAverage = 0;
 	public final static int MOST_HIT_SECTION_DISPLAYED = 3;
 
 	public HTTPStats() {
@@ -99,6 +100,14 @@ public class HTTPStats {
 		return stastValues;
 	}
 
+	public int getAlertAverage() {
+		return alertAverage;
+	}
+
+	public void setAlertAverage(int alertAverage) {
+		this.alertAverage = alertAverage;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder statsSb = new StringBuilder();
@@ -134,4 +143,6 @@ public class HTTPStats {
 		}
 		return statsSb.toString();
 	}
+	
+	
 }

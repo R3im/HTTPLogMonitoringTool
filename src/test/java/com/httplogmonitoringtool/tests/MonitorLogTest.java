@@ -132,7 +132,7 @@ public class MonitorLogTest {
 			// init log monitor
 			MonitorLog monitorLogs = new MonitorLog();
 			monitorLogs.setAlertAverageTreshold(10);
-			monitorLogs.setAlertMonitoringTime(alertMonitoringTime);
+			monitorLogs.setAlertTimeWindow(alertMonitoringTime);
 			monitorLogs.setLogFilePath(TrafficFakeLogThread.LOG_FILE_PATH);
 
 			Date lastTime = new Date();

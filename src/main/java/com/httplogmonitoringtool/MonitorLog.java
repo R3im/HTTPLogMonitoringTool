@@ -25,7 +25,7 @@ public class MonitorLog {
 	private String logFilePath = "/tmp/access.log";
 	private final static Logger logger = LogManager.getLogger(MonitorLog.class.getName());
 
-	private int alertMonitoringTime = 1000 * 60 * 2;
+	private int alertTimeWindow = 1000 * 60 * 2;
 	/**
 	 * request per seconds
 	 */
@@ -49,9 +49,11 @@ public class MonitorLog {
 			String strLine;
 			while ((strLine = br.readLine()) != null) {
 				if (lastReadedLine < lineCount) {
-					consumeLine(strLine);
-					fileLogsHasChanged = true;
-					alertMonitoringTimes.add(new Date().getTime());
+					Date logDate = consumeLine(strLine);
+					if (logDate != null) {
+						alertMonitoringTimes.add(logDate.getTime());
+						fileLogsHasChanged = true;
+					}
 				}
 				lineCount++;
 			}
@@ -66,11 +68,12 @@ public class MonitorLog {
 			Date currentTime = new Date();
 			// alert
 			if (!alertMonitoringTimes.isEmpty()
-					&& currentTime.getTime() - alertMonitoringTimes.get(0) >= alertMonitoringTime) {
+					&& currentTime.getTime() - alertMonitoringTimes.get(0) >= alertTimeWindow) {
 				long checkedTimePeriod = currentTime.getTime() - alertMonitoringTimes.get(0);
-				// TODO round up
+				// round up
 				int trafficAverage = (int) Math
 						.ceil(((float) alertMonitoringTimes.size() / (float) (checkedTimePeriod / 1000)));
+				logStats.setAlertAverage(trafficAverage);
 //				appendLog("trafficAverage:", trafficAverage + "", "\t", "logs:", alertMonitoringTimes.size() + "",
 //						"\t", "time:", ((currentTime.getTime() - alertMonitoringTimes.get(0)) / 1000) + "", "\t");
 //				logger.debug("trafficAverage:"+ trafficAverage);
@@ -100,7 +103,7 @@ public class MonitorLog {
 		return fileLogsHasChanged;
 	}
 
-	private void consumeLine(String line) {
+	private Date consumeLine(String line) {
 
 		try {
 
@@ -121,9 +124,11 @@ public class MonitorLog {
 				// remoteHost count
 				logStats.addRemoteHost(logRow.getRemoteHost());
 			}
+			return logRow.getReqDate();
 		} catch (HTTPLogRowFormatException e) {
 			logStats.increase(HTTPStatsType.TOTAL_BAD_FORMAT_LOG);
 		}
+		return null;
 	}
 
 //	private void logStats(HTTPStats stats) {
@@ -192,12 +197,12 @@ public class MonitorLog {
 		this.alertAverageTreshold = alertAverageTreshold;
 	}
 
-	public int getAlertMonitoringTime() {
-		return alertMonitoringTime;
+	public int getAlertTimeWindow() {
+		return alertTimeWindow;
 	}
 
-	public void setAlertMonitoringTime(int alertMonitoringTime) {
-		this.alertMonitoringTime = alertMonitoringTime;
+	public void setAlertTimeWindow(int alertTimeWindow) {
+		this.alertTimeWindow = alertTimeWindow;
 	}
 
 	public HTTPStats getLogStats() {
