@@ -94,6 +94,5 @@ Improvement of application design and code implementation:
 - Make console clear command working.
 - Use of database.
 - Simple user interface for a nicer display
-- Ask the opinion of fellow programmer.
 	
 	
