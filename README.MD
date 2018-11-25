@@ -23,7 +23,7 @@ Installation
 2. Install JRE 1.8+:<br>
    [Download and install JRE 1.8 (or newer)](https://www.java.com/fr/download/).
 3. Execute:
-   Open a command prompt/a terminal, `cd` to the jar location,
+   Open a command prompt a terminal, `cd` to the jar location,
    and execute `java -jar HTTPLogMonitoringTool-1.0.jar`.
    Jar options:
 ```
@@ -55,10 +55,10 @@ Build instructions
    If you installed Git, execute the following command: `git clone https://github.com/R3im/HTTPLogMonitoringTool.git`<br>
    Otherwise, download the repository as a [master zip](https://github.com/R3im/HTTPLogMonitoringTool/archive/master.zip) and extract it.
 6. Download dependencies:<br>
-   Open a command prompt/a terminal, `cd` to the project root directory,
+   Open a command prompt a terminal, `cd` to the project root directory,
    and execute `./gradle eclipse`.
 7. Generate Jar:
-   Open a command prompt/a terminal, `cd` to the project root directory,
+   Open a command prompt a terminal, `cd` to the project root directory,
    and execute `./gradle fatjar`.
 
 Docker
