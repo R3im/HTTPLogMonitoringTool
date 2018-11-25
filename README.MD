@@ -13,7 +13,7 @@ Contents
 * [Build instructions](#build-instructions)
 * [Docker](#docker)
 * [Tests](#tests)
-* [Improvement](#improvement)
+* [Improvements proposal](#improvements-proposal)
 
 Installation
 ------------
@@ -81,8 +81,8 @@ Junit tests are available in the folder [src/test/java](https://github.com/R3im/
 When [Build instructions](#build-instructions) are followed.
 on Eclipse right click on `src/test/java` > `Run As` > 2 `JUnit Test`
 	
-Improvement
------------
+Improvements proposal
+---------------------
 
 Improvement of application design and code implementation:
 - Check for optimization.
