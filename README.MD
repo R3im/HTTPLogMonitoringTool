@@ -12,7 +12,7 @@ Contents
 * [Fake log generator](#fake-log-generator)
 * [Build instructions](#build-instructions)
 * [Docker](#docker)
-* [tests](#tests)
+* [Tests](#tests)
 * [Improvement](#improvement)
 
 Installation
