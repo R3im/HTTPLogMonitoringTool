@@ -21,9 +21,9 @@
 	    baseName = project.name
 	    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     	exclude('com.httplogmonitoringtool.tests/*')
+    	exclude('com.httplogmonitoringtool.utils.tests/*')
 	    with jar
 	}
-	// java -jar build/libs/HTTPLogMonitoringTool-1.0.jar
 	
 	repositories {
 	    jcenter()

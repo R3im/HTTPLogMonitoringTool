@@ -37,7 +37,7 @@ public class MainTest {
 	}
 
 	@Test
-	public void testFileNotFound() {
+	public void testMain() {
 		try {
 	        exit.expectSystemExit();
 			Main.main(new String[] { "-l", "/var/log/file_not_existing.log" });
@@ -46,11 +46,6 @@ public class MainTest {
 			Assert.assertTrue("Message file does not exists not found",
 					outContent.toString().contains("does not exists."));
 		}
-
-	}
-	
-	@Test
-	public void testHelp() {
 		try {
 	        exit.expectSystemExit();
 			Main.main(new String[] { "-h" });
@@ -59,6 +54,7 @@ public class MainTest {
 			Assert.assertTrue("Message does not show help",
 					outContent.toString().contains("HELP"));
 		}
+
 
 	}
 	

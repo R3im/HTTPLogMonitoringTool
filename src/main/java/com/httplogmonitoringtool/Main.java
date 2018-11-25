@@ -117,7 +117,7 @@ public class Main {
 		AnsiConsole.out.println("  USAGE: HTTPLogMonitoringTool [option...] [--help] ");
 		AnsiConsole.out.println("   -?, -h, --help \t\tShows this help message.");
 		AnsiConsole.out.println("   -log, -l \t\t\tSet HTTP log file fullpath (default: \"/var/log/access.log\").");
-		AnsiConsole.out.println("   -alert_threshold, -at \t\tSet alert threshold (>0) (default: 2 minutes).");
+		AnsiConsole.out.println("   -alert_threshold, -at \tSet alert threshold (>0) (default: 2 minutes).");
 		appendLogFilled();
 		appendLogFilled();
 		System.exit(0);
@@ -389,5 +389,8 @@ public class Main {
 	 */
 	private static void clearConsole() {
 		AnsiConsole.out.println(Ansi.ansi().eraseScreen(Erase.ALL).fgBrightGreen());
+		for (int i = 0; i < 20; ++i) {
+			AnsiConsole.out.println();
+		}
 	}
 }
