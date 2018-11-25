@@ -1,5 +1,11 @@
-package com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.models;
 
+/**
+ * HTTP statistics status
+ * 
+ * @author Remi c
+ *
+ */
 public enum HTTPStatsStatus {
 
 	VALID_REQUESTS(200, "Valid requests"),
@@ -15,14 +21,6 @@ public enum HTTPStatsStatus {
 	
 	private final int code;
 	private final String value;
-
-	/**
-	 * @param value
-	 */
-	private HTTPStatsStatus(final String value) {
-		this.value = value;
-		this.code = -1;
-	}
 
 	/**
 	 * 

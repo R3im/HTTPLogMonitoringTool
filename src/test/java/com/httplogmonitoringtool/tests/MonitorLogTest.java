@@ -13,21 +13,23 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.httplogmonitoringtool.MonitorLog;
-import com.httplogmonitoringtool.model.HTTPStatsAlertType;
-import com.httplogmonitoringtool.model.HTTPStatsType;
+import com.httplogmonitoringtool.models.HTTPStatsAlertType;
+import com.httplogmonitoringtool.models.HTTPStatsType;
 
 public class MonitorLogTest {
 	@Before
 	public void setUpStreams() throws IOException, InterruptedException {
 		File file = new File(TrafficFakeLogThread.LOG_FILE_PATH);
 		if (file.exists()) {
-			file.delete();
+			file.delete();//delete if already exists
 		}
+		//create test log file
 		file.createNewFile();
 	}
 
 	@After
 	public void restoreStreams() throws IOException {
+		//delete test log file
 		Files.delete(Paths.get(TrafficFakeLogThread.LOG_FILE_PATH));
 	}
 
@@ -58,7 +60,7 @@ public class MonitorLogTest {
 			Assert.assertTrue("Should not have any request (" + reqCount + ")", reqCount == 0);
 			Long totalBadFormat = monitorLogs.getLogStats().getStatsValues().get(HTTPStatsType.TOTAL_BAD_FORMAT_LOG);
 			Assert.assertTrue("Should have bad format (" + totalBadFormat + ")", totalBadFormat > 0);
-		} catch (InterruptedException e) {
+		} catch (InterruptedException | IOException e) {
 			Assert.fail(e.getMessage());
 			return;
 		} finally {
@@ -98,7 +100,7 @@ public class MonitorLogTest {
 			// monitor has raised a low traffic alert ?
 			Assert.assertTrue("Most hit section not correct",
 					"/sport".equals(monitorLogs.getLogStats().getMostHitSection().keySet().iterator().next()));
-		} catch (InterruptedException e) {
+		} catch (InterruptedException | IOException e) {
 			Assert.fail(e.getMessage());
 			return;
 		} finally {
@@ -168,7 +170,7 @@ public class MonitorLogTest {
 				}
 				TimeUnit.MILLISECONDS.sleep(alertMonitoringTime / 2);
 			}
-		} catch (InterruptedException e) {
+		} catch (InterruptedException | IOException e) {
 			Assert.fail(e.getMessage());
 			return;
 		} finally {

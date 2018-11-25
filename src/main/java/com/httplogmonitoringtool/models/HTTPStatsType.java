@@ -1,5 +1,11 @@
-package com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.models;
 
+/**
+ * HTTP statistics type
+ * 
+ * @author Remi c
+ *
+ */
 public enum HTTPStatsType {
 
 	TOTAL_REQUESTS("Total requests"), TOTAL_CONTENT("Total content size"),

@@ -1,11 +1,18 @@
-package com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.models;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
 
+/**
+ * HTTP Statistics alert
+ * 
+ * @author Remi c
+ *
+ */
 public class HTTPStatsAlert {
+	
 	private HTTPStatsAlertType type;
 	private int trafficAverage;
 	private Date date;

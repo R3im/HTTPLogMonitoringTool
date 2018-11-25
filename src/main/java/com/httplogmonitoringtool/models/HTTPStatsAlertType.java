@@ -1,5 +1,11 @@
-package com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.models;
 
+/**
+ * HTTP Statistics alert type
+ * 
+ * @author Remi c
+ *
+ */
 public enum HTTPStatsAlertType {
 
 	HIGH_TRAFFIC("High traffic generated an alert - hits = %s/s, triggered at %s"),

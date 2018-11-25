@@ -1,5 +1,5 @@
 #
-#Sat Nov 24 16:34:47 CET 2018
+#Sun Nov 25 12:02:14 CET 2018
 org.eclipse.jdt.core.formatter.insert_space_before_comma_in_for_inits=do not insert
 org.eclipse.jdt.core.formatter.brace_position_for_block=end_of_line
 org.eclipse.jdt.core.formatter.insert_space_after_at_in_annotation_type_declaration=do not insert

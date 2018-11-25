@@ -1,5 +1,11 @@
-package com.httplogmonitoringtool.model;
+package com.httplogmonitoringtool.exceptions;
 
+/**
+ * Throwed when parsing http traffic log
+ * 
+ * @author Remi c
+ *
+ */
 public class HTTPLogRowFormatException extends Exception {
 
 	/**
