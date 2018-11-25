@@ -1,9 +1,7 @@
 package com.httplogmonitoringtool.tests;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Scanner;
 
 import org.junit.After;
 import org.junit.Assert;

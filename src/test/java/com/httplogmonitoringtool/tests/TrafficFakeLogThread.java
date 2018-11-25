@@ -9,9 +9,6 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class TrafficFakeLogThread extends Thread {
 
 	public final static String LOG_FILE_PATH = "/var/log/access_test.log";
