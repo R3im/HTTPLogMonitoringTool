@@ -79,7 +79,7 @@ Tests
 Junit tests are available in the folder [src/test/java](https://github.com/R3im/HTTPLogMonitoringTool/tree/master/src/test/java/com/httplogmonitoringtool)
 
 When [Build instructions](#build-instructions) are followed.
-on Eclipse right click on `src/test/java` > `Run As` > 2 `JUnit Test`
+on Eclipse right click on `src/test/java` > `Run As` > `2 JUnit Test`
 	
 Improvements proposal
 ---------------------
