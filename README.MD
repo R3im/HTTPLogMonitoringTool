@@ -27,10 +27,10 @@ Installation
    and execute `java -jar HTTPLogMonitoringTool-1.0.jar`.
    Jar options:
 ```
-	USAGE: HTTPLogMonitoringTool [option...] [--help]
-		-?, -h, --help               		Shows this help message.
-		-log, -l                     		Set HTTP log file fullpath (default: "/var/log/access.log").
-		-alert_threshold, -at               Set alert threshold (>0) (default: 2 minutes).`
+   USAGE: HTTPLogMonitoringTool [option...] [--help]
+	-?, -h, --help               		Shows this help message.
+	-log, -l                     		Set HTTP log file fullpath (default: "/var/log/access.log").
+	-alert_threshold, -at               	Set alert threshold (>0) (default: 2 minutes).`
 ```
 
 Fake log generator
