@@ -2,6 +2,7 @@ package com.httplogmonitoringtool.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.apache.logging.log4j.util.Strings;
 
@@ -28,7 +29,7 @@ public class HTTPLogParser {
 	private final static int CONTENTLENGTH_POSITION = 8;
 
 	// date format
-	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]");
+	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]", Locale.ENGLISH);
 
 	/**
 	 * Parse log line based on ' ', '[', ']', '"'

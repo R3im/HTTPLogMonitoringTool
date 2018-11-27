@@ -2,6 +2,7 @@ package com.httplogmonitoringtool.utils.tests;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,7 +13,7 @@ import com.httplogmonitoringtool.utils.HTTPLogParser;
 
 public class HTTPLogParserTest {
 
-	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]");
+	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]", Locale.ENGLISH);
 
 	@Test
 	public void testParseSuccess() {
