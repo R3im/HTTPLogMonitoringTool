@@ -29,8 +29,8 @@ public class TrafficFakeLogThread extends Thread {
 			"127.0.0.1 - sophie %s \"PUT /sport HTTP/1.0\" 404 aa\n",
 			"127.0.0.1 - sophie %s \"PUT /sport HTTP/1.0\" bbb, aa\n",
 			"127.0.0.1 - sophie [oooo] \"PUT /sport HTTP/1.0\" bbb, aa\n",
-			"127.0.0.1 - lily [24/11/2222:16:05:35 +0100] \"DELETE /sport/volleyball HTTP/1.0\" 300 8\n",
-			"127.0.0.1 - lily [24/11/2018:16:05:35 +0100] \"DELETE /sport/vol leyball HTTP/1.0\" 300 8\n",
+			"127.0.0.1 - lily [24/Nov/2222:16:05:35 +0100] \"DELETE /sport/volleyball HTTP/1.0\" 300 8\n",
+			"127.0.0.1 - lily [24/Nov/2018:16:05:35 +0100] \"DELETE /sport/vol leyball HTTP/1.0\" 300 8\n",
 			"127.0.0.1 - robert  %s \"GET /api/customer HTTP/1.0\" 501 9" };
 
 	private String[] logArray = DEFAULT_LOGS;
