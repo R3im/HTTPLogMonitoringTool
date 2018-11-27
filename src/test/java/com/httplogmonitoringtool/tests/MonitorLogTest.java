@@ -21,15 +21,15 @@ public class MonitorLogTest {
 	public void setUpStreams() throws IOException, InterruptedException {
 		File file = new File(TrafficFakeLogThread.LOG_FILE_PATH);
 		if (file.exists()) {
-			file.delete();//delete if already exists
+			file.delete();// delete if already exists
 		}
-		//create test log file
+		// create test log file
 		file.createNewFile();
 	}
 
 	@After
 	public void restoreStreams() throws IOException {
-		//delete test log file
+		// delete test log file
 		Files.delete(Paths.get(TrafficFakeLogThread.LOG_FILE_PATH));
 	}
 
@@ -98,6 +98,7 @@ public class MonitorLogTest {
 			monitorLogs.updateStats();
 
 			// monitor has raised a low traffic alert ?
+			Assert.assertTrue("No hit section found", !monitorLogs.getLogStats().getMostHitSection().isEmpty());
 			Assert.assertTrue("Most hit section not correct",
 					"/sport".equals(monitorLogs.getLogStats().getMostHitSection().keySet().iterator().next()));
 		} catch (InterruptedException | IOException e) {

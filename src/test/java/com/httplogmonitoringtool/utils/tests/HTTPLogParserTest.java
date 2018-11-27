@@ -12,7 +12,7 @@ import com.httplogmonitoringtool.utils.HTTPLogParser;
 
 public class HTTPLogParserTest {
 
-	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MM/yyyy:HH:mm:ss ZZZ]");
+	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]");
 
 	@Test
 	public void testParseSuccess() {

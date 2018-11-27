@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 public class TrafficFakeLogThread extends Thread {
 
-	public final static String LOG_FILE_PATH = "/var/log/access_test.log";
-	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("[dd/MM/yyyy:HH:mm:ss ZZZ]");
+	public final static String LOG_FILE_PATH = System.getProperty("user.dir")+"/bin/access_test.log";
+	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]");
 
 	public final static String[] DEFAULT_LOGS = new String[] {
 			"127.0.0.1 - robert %s \"DELETE /api HTTP/1.0\" 503 189\n",

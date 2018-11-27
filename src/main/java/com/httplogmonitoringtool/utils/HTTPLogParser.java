@@ -28,7 +28,7 @@ public class HTTPLogParser {
 	private final static int CONTENTLENGTH_POSITION = 8;
 
 	// date format
-	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MM/yyyy:HH:mm:ss ZZZ]");
+	private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[dd/MMM/yyyy:HH:mm:ss ZZZ]");
 
 	/**
 	 * Parse log line based on ' ', '[', ']', '"'
